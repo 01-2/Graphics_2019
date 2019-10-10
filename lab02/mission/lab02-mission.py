@@ -8,7 +8,9 @@ from math import *
 # FLAGS
 
 IsMoving = False
-IsZoom = False
+IsZoomIn = False
+IsZoomOut = False
+zoom_normal = [3,1,3]
 ##############################################################################
 # vertices
 ##############################################################################
@@ -81,6 +83,7 @@ def reshape_func(w, h):
 	gluPerspective(60,1.0,0.01,20.0)
 
 def disp_func():
+	global IsZoomIn, IsZoomOut, zoom_normal
     # clear
 	glClear(GL_COLOR_BUFFER_BIT)
 	glFrontFace(GL_CCW);
@@ -93,20 +96,17 @@ def disp_func():
     # view
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
-	
-	zoom_normal = [ 3, 1, 3]
-	zoom_high = [ 1, 0.3, 1]
+		
+	if IsZoomIn:
+		for i in range(3):
+			zoom_normal[i] = zoom_normal[i] / 1.5
+	elif IsZoomOut:
+		for i in range(3):
+			zoom_normal[i] = zoom_normal[i] * 1.5
 
-	if IsZoom:
-		a = zoom_high[0] * cos(Angle)
-		b = zoom_high[1]
-		c = zoom_high[2] * sin(Angle)
-	else:
-		a = zoom_normal[0] * cos(Angle)
-		b = zoom_normal[1]
-		c = zoom_normal[2] * sin(Angle)
-
-	gluLookAt(a,b,c, #카메라위치->perspective때는허용됨
+	IsZoomIn = False
+	IsZoomOut = False
+	gluLookAt(zoom_normal[0] * cos(Angle), zoom_normal[1], zoom_normal[2] * sin(Angle), #카메라위치->perspective때는허용됨
               0.0, 0.0, 0.0,#초점
               0.0,1.0, 0.0) #카메라방향
 	
@@ -142,11 +142,11 @@ def AniSubMenu(entryID):
 	return 0
 
 def CamSubMenu(entryID):
-	global IsZoom
+	global IsZoomIn, IsZoomOut
 	if entryID == 1:
-		IsZoom = True
+		IsZoomIn = True
 	elif entryID == 2:
-		IsZoom = False
+		IsZoomOut = True
 
 	glutPostRedisplay()
 	return 0
